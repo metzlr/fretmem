@@ -1,0 +1,78 @@
+.Game {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  background-color: white;
+  padding: 10px;
+}
+.Game * {
+  margin: 0;
+}
+.Game-title {
+  font-family: "Supermercado One", "Open Sans", sans-serif;
+  margin: 15px 0px 7px 0px;
+}
+.Game-instructions {
+  margin-bottom: 60px;
+  text-align: center;
+}
+.Game-status {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+}
+.Game-status-left,
+.Game-status-right {
+  display: flex;
+  flex-flow: row-nowrap;
+  align-items: center;
+}
+.Game-number {
+  margin: 0 0 0 10px;
+  color: #888;
+}
+.Game-fretboard {
+  margin: 20px 0;
+  width: 100%;
+}
+.Game-prompt-text {
+}
+.Game-prompt-note {
+  font-size: 3rem;
+}
+.Game-settings {
+  padding: 10px;
+}
+.Game-settings > p:first-of-type {
+  margin: 0 auto 15px auto;
+  border-bottom: 2px solid var(--border-color);
+  width: min-content;
+}
+
+.Game-settings > div > p {
+  /* color: var(--text-color-light-gray); */
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  margin-right: 30px;
+}
+.Game-settings > div > p > :first-child {
+  margin-right: 5px;
+}
+.Game-settings > div {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.Game-settings > div > div {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+.Game-settings > div > div > * + * {
+  margin-left: 10px;
+}

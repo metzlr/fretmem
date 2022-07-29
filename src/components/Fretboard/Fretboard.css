@@ -1,0 +1,36 @@
+#fretboard {
+  display: block;
+
+  /* The margin and max height below are required when
+  svg is flipped to vertical on small screens */
+  margin: auto;
+  max-height: 700px;
+}
+
+#fingerings > path:hover {
+  fill-opacity: 0.3;
+}
+#fingerings > path.empty:hover {
+  fill: #777;
+  cursor: pointer;
+}
+
+#fingerings > path.empty:hover,
+.disabled,
+.red,
+.green {
+  fill-opacity: 0.3;
+}
+#fingerings > path.disabled {
+  fill: black;
+}
+#fingerings > path.red {
+  fill: red;
+}
+#fingerings > path.green {
+  fill: green;
+}
+#notes > text {
+  pointer-events: none;
+  user-select: none;
+}

@@ -1,13 +1,39 @@
+/* @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400,0,500;0,600;0,700;0,800;1,500;1,600;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Supermercado+One&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@400&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Supermercado+One&display=swap"); */
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,400;0,500;1,400&family=Supermercado+One&display=swap");
+
+:root {
+  --text-color-black: #111;
+  --text-color-gray: #393939;
+  --text-color-light-gray: #888;
+  --border-color: #595959;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif; */
+  /* font-family: "Raleway", sans-serif; */
+  font-family: "Roboto Mono", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  color: #393939;
+  font-weight: 400;
+  font-size: 1rem;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #111;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
