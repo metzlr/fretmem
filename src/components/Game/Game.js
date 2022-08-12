@@ -1,5 +1,5 @@
 import "./Game.css";
-import Fretboard from "../Fretboard/Fretboard";
+import { Fretboard, FRETBOARD_MODES } from "../Fretboard/Fretboard";
 import { useReducer } from "react";
 import {
   gameReducer,
@@ -11,7 +11,8 @@ import { Timer, TIMER_STATES } from "../Timer/Timer";
 import { GiMusicalNotes } from "react-icons/gi";
 import { BsHourglassSplit } from "react-icons/bs";
 import { RiArrowGoBackLine } from "react-icons/ri";
-import { IoMdMusicalNote } from "react-icons/io";
+import AlertBanner from "../AlertBanner/AlertBanner";
+import MandolinFretInfo from "../../static/MandolinFretInfo";
 
 const renderButtonText = (gameState) => {
   switch (gameState) {
@@ -54,8 +55,19 @@ const Game = () => {
     initGameState
   );
 
-  const onFingeringClicked = (fingering, _) => {
-    dispatch({ type: GAME_ACTIONS.fingeringSelected, payload: fingering });
+  const onFretboardItemClicked = (item, _) => {
+    switch (gameState.state) {
+      case GAME_STATES.setup: {
+        dispatch({ type: GAME_ACTIONS.fretSelected, payload: item });
+        break;
+      }
+      case GAME_STATES.running: {
+        dispatch({ type: GAME_ACTIONS.fingeringSelected, payload: item });
+        break;
+      }
+      default:
+        return;
+    }
   };
 
   const onClickButton = () => {
@@ -76,6 +88,12 @@ const Game = () => {
 
   return (
     <div className="Game">
+      <AlertBanner
+        message={gameState.alertMessage}
+        onClose={() =>
+          dispatch({ type: GAME_ACTIONS.clearAlertMessage, payload: null })
+        }
+      />
       <h1 className="Game-title">
         Fret Master <GiMusicalNotes />
       </h1>
@@ -86,17 +104,26 @@ const Game = () => {
       </p>
       <div className="Game-status">
         <div className="Game-status-left">
-          <p>Time: </p>
-          <Timer
-            state={getTimerState(gameState.state)}
-            className={`Game-number`}
-          />
+          {gameState.state !== GAME_STATES.setup ? (
+            <>
+              <p>Time: </p>
+              <Timer
+                state={getTimerState(gameState.state)}
+                className={`Game-number`}
+              />
+            </>
+          ) : (
+            <p>
+              Frets Included:
+              <span className="Game-number">{`${gameState.activeFretCount}/${MandolinFretInfo.FRET_COUNT}`}</span>
+            </p>
+          )}
         </div>
         <div className="Game-status-middle">
           <button
             className={`btn ${
               gameState.state === GAME_STATES.setup
-                ? "btn-green"
+                ? "btn-secondary"
                 : gameState.state === GAME_STATES.running
                 ? "btn-primary"
                 : "btn-secondary"
@@ -107,19 +134,26 @@ const Game = () => {
           </button>
         </div>
         <div className="Game-status-right">
-          <p>
-            Score:
-            <span className="Game-number">
-              {gameState.numCorrect}/{gameState.fingerPool.counter}
-            </span>
-          </p>
+          {gameState.state !== GAME_STATES.setup ? (
+            <p>
+              Score:
+              <span className="Game-number">
+                {gameState.numCorrect}/{gameState.fingerPool.counter}
+              </span>
+            </p>
+          ) : null}
         </div>
       </div>
       <p className="Game-prompt"></p>
       <div className="Game-fretboard">
         <Fretboard
           boardState={gameState.boardState}
-          onFingeringClicked={onFingeringClicked}
+          mode={
+            gameState.state === GAME_STATES.setup
+              ? FRETBOARD_MODES.frets
+              : FRETBOARD_MODES.fingerings
+          }
+          onItemClicked={onFretboardItemClicked}
         />
       </div>
       {gameState.notePrompt === null ||
@@ -130,21 +164,7 @@ const Game = () => {
         </>
       )}
       {gameState.state !== GAME_STATES.setup ? null : (
-        <div className="Game-settings">
-          <p>Settings</p>
-          <div className="Game-settings-prompts">
-            <p>
-              <IoMdMusicalNote />
-              Prompt Categories
-            </p>
-            <div>
-              <p>A</p>
-              <p>B</p>
-              <p>C</p>
-            </div>
-          </div>
-          <button className="btn btn-secondary">Edit Frets</button>
-        </div>
+        <p>Click on a fret to add or remove it from the game.</p>
       )}
     </div>
   );

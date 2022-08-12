@@ -6,20 +6,35 @@
   margin: auto;
   max-height: 700px;
 }
+#fretboard * {
+  pointer-events: none;
+}
 
-#fingerings > path:hover {
+#fret-areas > path.active {
+  pointer-events: all;
+  cursor: pointer;
+}
+/* #fret-areas > path.enabled:hover {
+  fill: #999;
+  fill-opacity: 0.3;
+} */
+#fret-areas > path.disabled {
+  fill-opacity: 0.85;
+  fill: #777;
+}
+
+#fingerings > path.empty {
+  pointer-events: all;
+  cursor: pointer;
+}
+#fingerings > path.empty:hover,
+#fingerings > path.disabled,
+#fingerings > path.red,
+#fingerings > path.green {
   fill-opacity: 0.3;
 }
 #fingerings > path.empty:hover {
-  fill: #777;
-  cursor: pointer;
-}
-
-#fingerings > path.empty:hover,
-.disabled,
-.red,
-.green {
-  fill-opacity: 0.3;
+  fill: #999;
 }
 #fingerings > path.disabled {
   fill: black;
@@ -30,7 +45,8 @@
 #fingerings > path.green {
   fill: green;
 }
-#notes > text {
+
+/* #notes > text {
   pointer-events: none;
   user-select: none;
-}
+} */

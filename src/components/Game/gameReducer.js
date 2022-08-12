@@ -1,5 +1,11 @@
 import MandolinFretInfo from "../../static/MandolinFretInfo";
 
+const _countActiveFrets = (fretStates) =>
+  fretStates.reduce((count, val) => {
+    if (val === 1) return count + 1;
+    return count;
+  });
+
 const _getRandomNotePrompt = (noteIndex, includeNames) => {
   if (!includeNames) {
     // No possible categories
@@ -16,10 +22,26 @@ const _getRandomNotePrompt = (noteIndex, includeNames) => {
   return promptChoices[Math.floor(Math.random() * promptChoices.length)];
 };
 
-/** Returns ordered array of n fingerings i.e. [0,1,2...n-1] */
-const _generateFingeringPool = () => {
-  const arr = new Array(MandolinFretInfo.FINGERING_COUNT);
-  for (let i = 0; i < arr.length; i++) arr[i] = i;
+/** Returns ordered array of n fingerings i.e. [0,1,2...n-1]
+ * @param {Array<number>} fretStates Array of fret states. A fingering will only be included if the fret it is on is enabled.
+ */
+const _generateFingeringPool = (fretStates) => {
+  if (fretStates.length > MandolinFretInfo.FRET_COUNT) {
+    throw new Error("Unable to generate fingerings. Invalid number of frets.");
+  }
+  const arr = new Array(_countActiveFrets(fretStates) * 4);
+  let i, j; // i is fingering number, j is index in arr
+  for (i = 0, j = 0; j < arr.length; i++) {
+    const fret = i % MandolinFretInfo.FRET_COUNT;
+    if (fretStates[fret] === 1) {
+      arr[j] = i;
+      j += 1;
+    }
+    if (i >= MandolinFretInfo.FINGERING_COUNT) {
+      console.log(arr, i, j, fretStates);
+      throw new Error("This shouldn't be possible. Something's wrong.");
+    }
+  }
   return arr;
 };
 
@@ -36,6 +58,8 @@ const GAME_ACTIONS = {
   startGame: "START_GAME",
   endGame: "END_GAME",
   fingeringSelected: "FINGERING_SELECTED",
+  fretSelected: "FRET_SELECTED",
+  clearAlertMessage: "CLEAR_ALERT_MESSAGE",
 };
 const GAME_STATES = {
   setup: "SETUP",
@@ -53,13 +77,15 @@ const initGameState = () => {
     //'fingerings' contains an int array tracking state of each fingering on board. -1 = disabled, -2 = correct, -3 = incorrect, >=0 = empty and value is index in fingering pool.
     // 'frets' contains an int array tracking state of each fret. 0 = disabled (not included in game), 1 = enabled
     boardState: {
-      fingerings: new Array(MandolinFretInfo.FINGERING_COUNT).fill(-1),
+      fingerings: new Array(MandolinFretInfo.FINGERING_COUNT).fill(0),
       frets: new Array(MandolinFretInfo.FRET_COUNT).fill(1),
     },
     fingerPool: {
       arr: null,
       counter: null,
     },
+    activeFretCount: MandolinFretInfo.FRET_COUNT,
+    alertMessage: null,
   };
 };
 
@@ -69,8 +95,14 @@ const gameReducer = (gameState, action) => {
       if (gameState.state !== GAME_STATES.setup) {
         throw new Error("Failed to start game. Game is not in setup state.");
       }
+      if (gameState.activeFretCount === 0) {
+        return {
+          ...gameState,
+          alertMessage: "You can't start the game without any frets selected",
+        };
+      }
       console.log("Starting game...");
-      const poolArray = _generateFingeringPool();
+      const poolArray = _generateFingeringPool(gameState.boardState.frets);
       const newFingeringState = new Array(
         MandolinFretInfo.FINGERING_COUNT
       ).fill(-1);
@@ -81,6 +113,7 @@ const gameReducer = (gameState, action) => {
 
       return {
         ...gameState,
+        alertMessage: null,
         state: GAME_STATES.running,
         fingerPool: { arr: poolArray, counter: 0 },
         boardState: {
@@ -93,6 +126,31 @@ const gameReducer = (gameState, action) => {
           ],
           true
         ),
+      };
+    }
+    case GAME_ACTIONS.fretSelected: {
+      if (gameState.state !== GAME_STATES.setup) {
+        return gameState;
+      }
+
+      const fret = action.payload;
+      let newActiveCount = gameState.activeFretCount;
+      const newFretStates = [...gameState.boardState.frets];
+      if (newFretStates[fret] === 1) {
+        newFretStates[fret] = 0;
+        newActiveCount -= 1;
+      } else {
+        newFretStates[fret] = 1;
+        newActiveCount += 1;
+      }
+
+      return {
+        ...gameState,
+        boardState: {
+          ...gameState.boardState,
+          frets: newFretStates,
+        },
+        activeFretCount: newActiveCount,
       };
     }
     case GAME_ACTIONS.fingeringSelected: {
@@ -168,6 +226,9 @@ const gameReducer = (gameState, action) => {
     case GAME_ACTIONS.resetGame: {
       // TODO: Settings (once there are some) shouldn't be reset
       return initGameState();
+    }
+    case GAME_ACTIONS.clearAlertMessage: {
+      return { ...gameState, alertMessage: null };
     }
     default:
       throw new Error("Unhandled game action: " + action);

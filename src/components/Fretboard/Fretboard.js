@@ -5,7 +5,13 @@ import MandolinFretInfo from "../../static/MandolinFretInfo";
 // When screen width is less than this value, display the fretboard vertically so it fits on small (mobile) screens better
 const MIN_HORIZONTAL_WIDTH = 600;
 
-const Fretboard = ({ boardState, onFingeringClicked }) => {
+// Different modes fretboard can be in
+const FRETBOARD_MODES = {
+  frets: "FRETS", // Selectable frets
+  fingerings: "FINGERINGS", // Selectable fingerings
+};
+
+const Fretboard = ({ boardState, mode, onItemClicked }) => {
   const { width } = useWindowDimensions();
 
   // Make sure number of frets is consistent
@@ -107,56 +113,65 @@ const Fretboard = ({ boardState, onFingeringClicked }) => {
             <path d="m.19 49.496 912.843 -19.7" />
           </g>
         </g>
-        <g id="fingerings" fill="#fff" fillOpacity="0">
-          {MandolinFretInfo.FINGERING_PATHS.map((p, i) => {
-            // Determine fingering color from provided fretState
+
+        <g id="fret-areas" fill="#fff" fillOpacity="0">
+          {MandolinFretInfo.FRET_AREA_PATHS.map((p, i) => {
+            // Determine fret color from provided state
             let colorClass;
-            switch (boardState.fingerings[i]) {
-              case -1:
-                colorClass = "disabled";
-                break;
-              case -2:
-                colorClass = "green";
-                break;
-              case -3:
-                colorClass = "red";
+            switch (boardState.frets[i]) {
+              case 1:
+                colorClass = "enabled";
                 break;
               default:
-                colorClass = "empty";
+                colorClass = "disabled";
             }
             return (
               <path
                 key={i}
                 d={p}
-                className={colorClass}
-                onClick={(evt) => onFingeringClicked(i, evt)}
+                className={`${colorClass} ${
+                  mode === FRETBOARD_MODES.frets ? "active" : ""
+                }`}
+                onClick={(evt) => onItemClicked(i, evt)}
               />
             );
           })}
         </g>
-        {/* <g id="fret-areas" fill="#fff" fillOpacity="0">
-          <path d="m.91 31.11 70.42-2.346v103.527L.91 129.945V31.11" />
-          <path d="m71.33 28.764 65.854-2.192v107.912l-65.854-2.193Z" />
-          <path d="m137.184 26.572 66.603-2.219v112.35l-66.603-2.219V26.572" />
-          <path d="m203.787 24.353 59.867-1.994v116.338l-59.867-1.994V24.353" />
-          <path d="m263.654 22.359 57.622-1.919v120.176l-57.622-1.919Z" />
-          <path d="m321.276 20.44 54.629-1.82v123.816l-54.629-1.82z" />
-          <path d="m375.905 18.62 51.636-1.72v127.256l-51.636-1.72V18.62" />
-          <path d="m427.541 16.9 46.397-1.546v130.348l-46.397-1.546Z" />
-          <path d="m473.938 15.354 47.146-1.57v133.488l-47.837-1.593z" />
-          <path d="m521.084 13.784 44.152-1.471v136.43l-44.152-1.471V13.784" />
-          <path d="m565.236 12.313 41.159-1.371v139.172l-41.159-1.371z" />
-          <path d="m606.395 10.942 38.913-1.296V151.41l-38.913-1.296z" />
-          <path d="m645.308 9.646 38.166-1.272v144.307l-38.166-1.271Z" />
-          <path d="m683.47 8.375 34.427-1.147v146.6l-34.423-1.147z" />
-          <path d="m717.897 7.228 32.927-1.097v148.794l-32.927-1.097z" />
-          <path d="m750.824 6.131 30.682-1.022v150.838l-30.682-1.022z" />
-          <path d="m781.506 5.109 30.682-1.022V156.97l-30.682-1.022z" />
-          <path d="m812.188 4.087 26.941-.897v154.676l-26.941-.897z" />
-          <path d="m839.129 3.19 25.443-.848v156.372l-25.443-.848z" />
-          <path d="m864.572 2.342 25.388-.845v158.062l-25.388-.845z" />
-          <path d="m889.96 1.497 23.073-.769v159.6l-23.073-.769z" />
-        </g> */}
+        {mode === FRETBOARD_MODES.fingerings ? (
+          <g id="fingerings" fill="#fff" fillOpacity="0">
+            {MandolinFretInfo.FINGERING_PATHS.map((p, i) => {
+              const fret = i % MandolinFretInfo.FRET_COUNT;
+              if (boardState.frets[fret] === 0) {
+                // Don't show fingerings on disabled frets
+                return null;
+              }
+              // Determine fingering color from provided state
+              let colorClass;
+              switch (boardState.fingerings[i]) {
+                case -1:
+                  colorClass = "disabled";
+                  break;
+                case -2:
+                  colorClass = "green";
+                  break;
+                case -3:
+                  colorClass = "red";
+                  break;
+                default:
+                  colorClass = "empty";
+              }
+              return (
+                <path
+                  key={i}
+                  d={p}
+                  className={colorClass}
+                  onClick={(evt) => onItemClicked(i, evt)}
+                />
+              );
+            })}
+          </g>
+        ) : null}
+
         {/* <g id="notes" fontSize="0.5rem" dy="10">
           {MandolinFretInfo.FINGERING_MIDPOINTS.map((p, i) => {
             const noteName =
@@ -176,4 +191,4 @@ const Fretboard = ({ boardState, onFingeringClicked }) => {
   );
 };
 
-export default Fretboard;
+export { Fretboard, FRETBOARD_MODES };

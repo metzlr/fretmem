@@ -25,6 +25,11 @@
   align-items: center;
   justify-items: center;
 }
+@media screen and (max-width: 600px) {
+  .Game-status-left, .Game-status-right {
+    font-size: 0.7rem;
+  }
+}
 .Game-status-left,
 .Game-status-right {
   display: flex;
@@ -38,8 +43,6 @@
 .Game-fretboard {
   margin: 20px 0;
   width: 100%;
-}
-.Game-prompt-text {
 }
 .Game-prompt-note {
   font-size: 3rem;
