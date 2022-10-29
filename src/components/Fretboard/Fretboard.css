@@ -8,6 +8,7 @@
 }
 #fretboard * {
   pointer-events: none;
+  user-select: none;
 }
 
 #fret-areas > path.active {
@@ -19,7 +20,7 @@
   fill-opacity: 0.3;
 } */
 #fret-areas > path.disabled {
-  fill-opacity: 0.85;
+  fill-opacity: 0.75;
   fill: #777;
 }
 

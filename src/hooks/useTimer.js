@@ -6,7 +6,7 @@ const TIMER_STATES = {
   Paused: "PAUSED",
 };
 
-const Timer = ({ state, className }) => {
+const useTimer = (state) => {
   const [time, setTime] = useState({ min: 0, sec: 0 });
 
   useEffect(() => {
@@ -30,12 +30,7 @@ const Timer = ({ state, className }) => {
     }
   }, [state]);
 
-  return (
-    <span className={`Timer-time ${className}`}>
-      {time.min < 10 ? "0" + time.min : time.min}:
-      {time.sec < 10 ? "0" + time.sec : time.sec}
-    </span>
-  );
+  return time;
 };
 
-export { Timer, TIMER_STATES };
+export { useTimer, TIMER_STATES };

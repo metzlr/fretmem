@@ -7,6 +7,13 @@
   background-color: white;
   padding: 10px;
 }
+strong {
+  font-weight: 500;
+}
+.Game-large-text {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
 .Game * {
   margin: 0;
 }
@@ -35,13 +42,15 @@
   display: flex;
   flex-flow: row-nowrap;
   align-items: center;
+  font-weight: 500;
 }
 .Game-number {
   margin: 0 0 0 10px;
-  color: #888;
+  color: #777;
+  font-weight: 400;
 }
 .Game-fretboard {
-  margin: 20px 0;
+  margin: 35px 0;
   width: 100%;
 }
 .Game-prompt-note {
@@ -78,4 +87,10 @@
 }
 .Game-settings > div > div > * + * {
   margin-left: 10px;
+}
+.Game-ended-stats > p + p {
+  margin-top: 10px;
+}
+.Game-ended-stats > p {
+  text-align: center;
 }

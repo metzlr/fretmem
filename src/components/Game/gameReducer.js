@@ -45,13 +45,18 @@ const _generateFingeringPool = (fretStates) => {
   return arr;
 };
 
-const _pickNextFingering = (pool, counter) => {
+const _pickNextFingering = (fingeringStates, pool, counter) => {
   // Randomly pick next fingering, ignoring fingerings outside of valid pool range (i.e. fingerings with an index < fingeringCounter)
   const index = Math.floor(Math.random() * (pool.length - counter) + counter);
   // Swap randomly chosen fingering to front of pool
   [pool[counter], pool[index]] = [pool[index], pool[counter]];
+  // Update indices of effected fingerings
+  fingeringStates[pool[counter]] = counter;
+  fingeringStates[pool[index]] = index;
   return pool[counter];
 };
+
+const GAME_SETTINGS_KEY = "GAME_SETTINGS";
 
 const GAME_ACTIONS = {
   resetGame: "RESET_GAME",
@@ -65,10 +70,12 @@ const GAME_STATES = {
   setup: "SETUP",
   running: "RUNNING",
   ended: "ENDED",
-  editingFrets: "EDITING_FRETS",
 };
 
 const initGameState = () => {
+  const settings = JSON.parse(localStorage.getItem(GAME_SETTINGS_KEY)) ?? {
+    frets: new Array(MandolinFretInfo.FRET_COUNT).fill(1),
+  };
   return {
     state: GAME_STATES.setup,
     numCorrect: 0,
@@ -78,13 +85,13 @@ const initGameState = () => {
     // 'frets' contains an int array tracking state of each fret. 0 = disabled (not included in game), 1 = enabled
     boardState: {
       fingerings: new Array(MandolinFretInfo.FINGERING_COUNT).fill(0),
-      frets: new Array(MandolinFretInfo.FRET_COUNT).fill(1),
+      frets: settings.frets,
     },
     fingerPool: {
       arr: null,
       counter: null,
     },
-    activeFretCount: MandolinFretInfo.FRET_COUNT,
+    activeFretCount: _countActiveFrets(settings.frets),
     alertMessage: null,
   };
 };
@@ -103,12 +110,12 @@ const gameReducer = (gameState, action) => {
       }
       console.log("Starting game...");
       const poolArray = _generateFingeringPool(gameState.boardState.frets);
-      const newFingeringState = new Array(
+      const newFingeringStates = new Array(
         MandolinFretInfo.FINGERING_COUNT
       ).fill(-1);
       for (let i = 0; i < poolArray.length; i++) {
         // Update state of frets that will be used in the game. Value stored in state is the fret's index in the pool
-        newFingeringState[poolArray[i]] = i;
+        newFingeringStates[poolArray[i]] = i;
       }
 
       return {
@@ -117,12 +124,12 @@ const gameReducer = (gameState, action) => {
         state: GAME_STATES.running,
         fingerPool: { arr: poolArray, counter: 0 },
         boardState: {
-          fingerings: newFingeringState,
+          fingerings: newFingeringStates,
           frets: gameState.boardState.frets,
         },
         notePrompt: _getRandomNotePrompt(
           MandolinFretInfo.FINGERING_NOTE_INDEX[
-            _pickNextFingering(poolArray, 0)
+            _pickNextFingering(newFingeringStates, poolArray, 0)
           ],
           true
         ),
@@ -166,7 +173,7 @@ const gameReducer = (gameState, action) => {
       let counter = gameState.fingerPool.counter;
       // Edit a copy of arrays (so we keep reducer pure by not editing previous gameState object)
       const poolArray = [...gameState.fingerPool.arr];
-      const fingerings = [...gameState.boardState.fingerings];
+      const fingeringStates = [...gameState.boardState.fingerings];
       // Current "correct" note at the front of pool being prompted
       const currFingering = poolArray[counter];
 
@@ -177,7 +184,7 @@ const gameReducer = (gameState, action) => {
           poolArray[counter],
         ];
         // Update old currFingering's state
-        fingerings[currFingering] = poolIndex;
+        fingeringStates[currFingering] = poolIndex;
       }
       let numCorrect = gameState.numCorrect;
       if (
@@ -185,11 +192,11 @@ const gameReducer = (gameState, action) => {
         MandolinFretInfo.FINGERING_NOTE_INDEX[currFingering]
       ) {
         // Selected valid fingering matching note prompt
-        fingerings[fingering] = -2;
+        fingeringStates[fingering] = -2;
         numCorrect += 1;
       } else {
         // Selected invalid fingering
-        fingerings[fingering] = -3;
+        fingeringStates[fingering] = -3;
       }
       counter += 1;
 
@@ -200,7 +207,7 @@ const gameReducer = (gameState, action) => {
           counter: counter,
         },
         boardState: {
-          fingerings: fingerings,
+          fingerings: fingeringStates,
           frets: gameState.boardState.frets,
         },
         numCorrect: numCorrect,
@@ -210,7 +217,7 @@ const gameReducer = (gameState, action) => {
       } else {
         newState.notePrompt = _getRandomNotePrompt(
           MandolinFretInfo.FINGERING_NOTE_INDEX[
-            _pickNextFingering(poolArray, counter)
+            _pickNextFingering(fingeringStates, poolArray, counter)
           ],
           true
         );
@@ -235,4 +242,10 @@ const gameReducer = (gameState, action) => {
   }
 };
 
-export { initGameState, gameReducer, GAME_ACTIONS, GAME_STATES };
+export {
+  initGameState,
+  gameReducer,
+  GAME_ACTIONS,
+  GAME_STATES,
+  GAME_SETTINGS_KEY,
+};
