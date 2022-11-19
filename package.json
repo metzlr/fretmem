@@ -2,7 +2,9 @@
   "name": "fret-master",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://metzlr.net/fretmaster",
   "devDependencies": {
+    "gh-pages": "^4.0.0",
     "prettier": "^2.7.1"
   },
   "dependencies": {
@@ -19,7 +21,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build -m 'Deploying to Github Pages'"
   },
   "eslintConfig": {
     "extends": [
