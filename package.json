@@ -1,8 +1,8 @@
 {
-  "name": "fret-master",
+  "name": "fretmem",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://metzlr.net/fretmaster",
+  "homepage": "https://metzlr.net/fretmem",
   "devDependencies": {
     "gh-pages": "^4.0.0",
     "prettier": "^2.7.1"

@@ -126,7 +126,7 @@ const Game = () => {
         }
       />
       <h1 className="Game-title">
-        Fret Master <GiMusicalNotes />
+        Fretmem <GiMusicalNotes />
       </h1>
       <p className="Game-instructions">
         A memory game to help mandolin players learn the fretboard. When you hit
