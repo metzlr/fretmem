@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/fretmaster/static/css/main.7db181d6.css",
+    "main.js": "/fretmaster/static/js/main.14f3551e.js",
+    "static/js/787.398def41.chunk.js": "/fretmaster/static/js/787.398def41.chunk.js",
+    "index.html": "/fretmaster/index.html",
+    "main.7db181d6.css.map": "/fretmaster/static/css/main.7db181d6.css.map",
+    "main.14f3551e.js.map": "/fretmaster/static/js/main.14f3551e.js.map",
+    "787.398def41.chunk.js.map": "/fretmaster/static/js/787.398def41.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7db181d6.css",
+    "static/js/main.14f3551e.js"
+  ]
+}
