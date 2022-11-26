@@ -4,7 +4,7 @@
 }
 
 .btn {
-  font-family: inherit;
+  font-family: "Roboto Mono", monospace;
   font-size: inherit;
 
   outline: none;
@@ -24,9 +24,7 @@
 .btn:hover {
   cursor: pointer;
 }
-
 .btn-primary {
-  /* background-color: #2b75ff; */
   color: #b11bb1;
   border: 2px solid #b11bb1;
   border-radius: 20px;

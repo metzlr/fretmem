@@ -7,15 +7,9 @@
   background-color: white;
   padding: 10px;
 }
-strong {
-  font-weight: 500;
-}
 .Game-large-text {
   font-size: 1.2rem;
   font-weight: 500;
-}
-.Game * {
-  margin: 0;
 }
 .Game-title {
   font-family: "Supermercado One", "Open Sans", sans-serif;
@@ -45,9 +39,11 @@ strong {
   font-weight: 500;
 }
 .Game-number {
+  font-family: "Roboto Mono", monospace;
   margin: 0 0 0 10px;
-  color: #777;
   font-weight: 400;
+  font-size: 1em;
+  white-space: nowrap;
 }
 .Game-fretboard {
   margin: 35px 0;
@@ -55,6 +51,7 @@ strong {
 }
 .Game-prompt-note {
   font-size: 3rem;
+  font-family: "Roboto Mono", monospace;
 }
 .Game-settings {
   padding: 10px;
@@ -66,7 +63,6 @@ strong {
 }
 
 .Game-settings > div > p {
-  /* color: var(--text-color-light-gray); */
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -88,9 +84,51 @@ strong {
 .Game-settings > div > div > * + * {
   margin-left: 10px;
 }
-.Game-ended-stats > p + p {
-  margin-top: 10px;
+.Game-stats {
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
 }
-.Game-ended-stats > p {
-  text-align: center;
+.Game-stats-notes {
+  margin: 40px 0;
+  display: grid;
+  gap: 30px;
+
+  max-width: 890px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
 }
+@media screen and (max-width: 770px) {
+  .Game-stats-notes {
+    max-width: 430px;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media screen and (max-width: 420px) {
+  .Game-stats-notes {
+    max-width: 200px;
+    grid-template-columns: 1fr;
+  }
+}
+.Game-stats-note {
+  font-family: "Roboto Mono", monospace;
+  font-size: 1.3em;
+  font-weight: 500;
+}
+.Game-stats-line {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.Game-stats-line > .PercentageBar {
+  margin-left: 15px;
+}
+.Game-stats-line-small {
+  font-size: 0.8rem;
+}
+.Game-stats-line-name {
+  white-space: nowrap;
+  font-weight: 500;
+}
+

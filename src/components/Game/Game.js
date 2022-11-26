@@ -11,6 +11,7 @@ import {
 import { GiMusicalNotes } from "react-icons/gi";
 import { BsHourglassSplit } from "react-icons/bs";
 import { RiArrowGoBackLine } from "react-icons/ri";
+import GameStats from "./GameStats";
 import AlertBanner from "../AlertBanner/AlertBanner";
 import MandolinFretInfo from "../../static/MandolinFretInfo";
 import { useTimer, TIMER_STATES } from "../../hooks/useTimer";
@@ -53,14 +54,6 @@ const getSettingsFromState = (gameState) => {
   return {
     frets: gameState.boardState.frets,
   };
-};
-
-const getAverageNotesPerSecond = (count, time) => {
-  const sec = time.min * 60 + time.sec;
-  if (count === 0) return 0;
-  const avg = sec / count;
-  // Round to two decimal places
-  return Math.round(avg * 100) / 100;
 };
 
 const Game = () => {
@@ -111,11 +104,6 @@ const Game = () => {
         break;
     }
   };
-
-  const avgNotesPerSecond =
-    gameState.state === GAME_STATES.ended
-      ? getAverageNotesPerSecond(gameState.fingerPool.counter, time)
-      : null;
 
   return (
     <div className="Game">
@@ -169,7 +157,8 @@ const Game = () => {
             <p>
               Score:
               <span className="Game-number">
-                {gameState.numCorrect}/{gameState.fingerPool.counter}
+                {gameState.stats.fingeringCorrectCount}/
+                {gameState.stats.fingeringCount}
               </span>
             </p>
           ) : null}
@@ -192,9 +181,11 @@ const Game = () => {
           <p className="Game-prompt-text">Find this note above:</p>
           <p className="Game-prompt-note">{gameState.notePrompt}</p>
           <p>
-            <strong>
-              {gameState.fingerPool.arr.length - gameState.fingerPool.counter}
-            </strong>{" "}
+            <span className="Game-number">
+              <strong>
+                {gameState.fingerPool.length - gameState.stats.fingeringCount}
+              </strong>
+            </span>{" "}
             notes remaining
           </p>
         </>
@@ -206,34 +197,7 @@ const Game = () => {
         </p>
       )}
       {gameState.state !== GAME_STATES.ended ? null : (
-        <div className="Game-ended-stats">
-          <p>
-            You identified{" "}
-            <span className="Game-large-text">
-              {gameState.numCorrect}/{gameState.fingerPool.counter}
-            </span>{" "}
-            notes in{" "}
-            {time.min > 0 ? (
-              <>
-                <span className="Game-large-text">
-                  {time.min} {time.min === 1 ? "minute" : "minutes"}
-                </span>{" "}
-                and{" "}
-              </>
-            ) : null}
-            <span className="Game-large-text">
-              {time.sec} {time.sec === 1 ? "second" : "seconds"}
-            </span>
-          </p>
-          <p>
-            On average it took you{" "}
-            <span className="Game-large-text">
-              {avgNotesPerSecond}{" "}
-              {avgNotesPerSecond === 1 ? "second" : "seconds"}
-            </span>{" "}
-            to find a note
-          </p>
-        </div>
+        <GameStats stats={gameState.stats} />
       )}
     </div>
   );

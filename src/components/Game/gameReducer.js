@@ -76,9 +76,9 @@ const initGameState = () => {
   const settings = JSON.parse(localStorage.getItem(GAME_SETTINGS_KEY)) ?? {
     frets: new Array(MandolinFretInfo.FRET_COUNT).fill(1),
   };
+
   return {
     state: GAME_STATES.setup,
-    numCorrect: 0,
     notePrompt: null,
     // Tracks state of fretboard. Variable that Fretboard component uses to determine visual state
     //'fingerings' contains an int array tracking state of each fingering on board. -1 = disabled, -2 = correct, -3 = incorrect, >=0 = empty and value is index in fingering pool.
@@ -87,9 +87,15 @@ const initGameState = () => {
       fingerings: new Array(MandolinFretInfo.FINGERING_COUNT).fill(0),
       frets: settings.frets,
     },
-    fingerPool: {
-      arr: null,
-      counter: null,
+    fingerPool: null,
+    stats: {
+      startTimestamp: null,
+      lastTimestamp: null,
+      noteTime: null,
+      noteCorrectCount: null,
+      noteCount: null,
+      fingeringCorrectCount: null,
+      fingeringCount: null,
     },
     activeFretCount: _countActiveFrets(settings.frets),
     alertMessage: null,
@@ -118,11 +124,27 @@ const gameReducer = (gameState, action) => {
         newFingeringStates[poolArray[i]] = i;
       }
 
+      // Setup stat objects
+      const noteTime = new Array(MandolinFretInfo.NOTES.length);
+      for (let i = 0; i < noteTime.length; i++) {
+        noteTime[i] = -1;
+      }
+      const noteCorrectCount = Array.from(noteTime);
+      const noteCount = Array.from(noteTime);
+      for (let fingering in poolArray) {
+        const noteIndex = MandolinFretInfo.FINGERING_NOTE_INDEX[fingering];
+        noteTime[noteIndex] = 0;
+        noteCorrectCount[noteIndex] = 0;
+        noteCount[noteIndex] = 0;
+      }
+
+      const timestamp = Date.now();
+
       return {
         ...gameState,
         alertMessage: null,
         state: GAME_STATES.running,
-        fingerPool: { arr: poolArray, counter: 0 },
+        fingerPool: poolArray,
         boardState: {
           fingerings: newFingeringStates,
           frets: gameState.boardState.frets,
@@ -133,6 +155,15 @@ const gameReducer = (gameState, action) => {
           ],
           true
         ),
+        stats: {
+          startTimestamp: timestamp,
+          lastTimestamp: timestamp,
+          noteTime: noteTime,
+          noteCorrectCount: noteCorrectCount,
+          noteCount: noteCount,
+          fingeringCorrectCount: 0,
+          fingeringCount: 0,
+        },
       };
     }
     case GAME_ACTIONS.fretSelected: {
@@ -170,12 +201,16 @@ const gameReducer = (gameState, action) => {
       // If clicked fingering isn't empty (e.g. it's disabled or already selected), ignore
       if (poolIndex < 0) return;
 
-      let counter = gameState.fingerPool.counter;
-      // Edit a copy of arrays (so we keep reducer pure by not editing previous gameState object)
-      const poolArray = [...gameState.fingerPool.arr];
+      let counter = gameState.stats.fingeringCount;
+      // Edit a copy of necessary objects (so we keep reducer pure by not editing previous gameState object)
+      const poolArray = [...gameState.fingerPool];
       const fingeringStates = [...gameState.boardState.fingerings];
+      const noteTime = [...gameState.stats.noteTime];
+      const noteCount = [...gameState.stats.noteCount];
+      const noteCorrectCount = [...gameState.stats.noteCorrectCount];
       // Current "correct" note at the front of pool being prompted
       const currFingering = poolArray[counter];
+      const timestamp = Date.now();
 
       if (currFingering !== fingering) {
         // User selected another fingering than the one we are currently prompting. Their selection could still be valid. Either way we must swap the fingering they selected with our current fingering so the selected fingering is properly removed from consideration after this function finishes.
@@ -186,31 +221,40 @@ const gameReducer = (gameState, action) => {
         // Update old currFingering's state
         fingeringStates[currFingering] = poolIndex;
       }
-      let numCorrect = gameState.numCorrect;
+      let fingeringCorrectCount = gameState.stats.fingeringCorrectCount;
+      let correctNoteIndex =
+        MandolinFretInfo.FINGERING_NOTE_INDEX[currFingering];
       if (
-        MandolinFretInfo.FINGERING_NOTE_INDEX[fingering] ===
-        MandolinFretInfo.FINGERING_NOTE_INDEX[currFingering]
+        MandolinFretInfo.FINGERING_NOTE_INDEX[fingering] === correctNoteIndex
       ) {
         // Selected valid fingering matching note prompt
         fingeringStates[fingering] = -2;
-        numCorrect += 1;
+        fingeringCorrectCount += 1;
+        noteCorrectCount[correctNoteIndex] += 1;
       } else {
         // Selected invalid fingering
         fingeringStates[fingering] = -3;
       }
+      noteCount[correctNoteIndex] += 1;
+      noteTime[correctNoteIndex] += timestamp - gameState.stats.lastTimestamp;
       counter += 1;
 
       let newState = {
         ...gameState,
-        fingerPool: {
-          arr: poolArray,
-          counter: counter,
-        },
+        fingerPool: poolArray,
         boardState: {
           fingerings: fingeringStates,
           frets: gameState.boardState.frets,
         },
-        numCorrect: numCorrect,
+        stats: {
+          ...gameState.stats,
+          lastTimestamp: timestamp,
+          noteTime: noteTime,
+          noteCorrectCount: noteCorrectCount,
+          noteCount: noteCount,
+          fingeringCorrectCount: fingeringCorrectCount,
+          fingeringCount: counter,
+        },
       };
       if (poolArray.length === counter) {
         newState.state = GAME_STATES.ended;

@@ -1,0 +1,25 @@
+.PercentageBar {
+  display: inline-block;
+  position: relative;
+  width: 7.5em;
+  height: 1em;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px #777;
+}
+.PercentageBar-bar {
+  position: absolute;
+  left: 0;
+  height: 1em;
+  opacity: 40%;
+  z-index: 0;
+  border-radius: inherit;
+}
+.PercentageBar-text {
+  font-family: "Roboto Mono", monospace;
+  position: absolute;
+  left: 0;
+  font-size: 0.8em;
+  text-align: center;
+  z-index: 1;
+  width: 100%;
+}
