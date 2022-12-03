@@ -36,7 +36,7 @@ const _noteStats = (noteCount, noteCorrectCount, noteTime) => {
     const avgSpeed =
       noteCount[i] <= 0
         ? null
-        : `${_round(noteTime[i] / 1000 / noteCount[i])} notes/sec`;
+        : `${_round(noteCount[i] / (noteTime[i] / 1000))} notes/sec`;
     lines.push(
       <div>
         <p className="Game-stats-note">{name}</p>
@@ -59,7 +59,7 @@ const GameStats = ({ stats }) => {
   const avgSpeed =
     stats.fingeringCount === 0
       ? null
-      : `${_round(duration / stats.fingeringCount)} notes/sec`;
+      : `${_round(stats.fingeringCount / duration)} notes/sec`;
 
   return (
     <div className="Game-stats">
